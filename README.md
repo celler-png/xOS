@@ -1,2 +1,0 @@
-# xOS
-a mobile os
