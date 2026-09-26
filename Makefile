@@ -12,8 +12,8 @@ LD = aarch64-linux-gnu-ld
 CFLAGS = -ffreestanding -O2 -Wall -Wextra
 CXXFLAGS = -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti
 
-# Object binary layout list - Perfectly matching your secure.o module!
-OBJ = boot.o kernel.o driver.o ui.o secure.o
+# Object binary layout list - Perfectly matching your complete hardware pipeline!
+OBJ = boot.o kernel.o driver.o ui.o secure.o Storagefiles.o touch_pipeline.o
 
 # Master production target
 all: xos_kernel.elf
@@ -35,9 +35,15 @@ driver.o: driver.cpp
 ui.o: ui.cpp
 	$(CXX) $(CXXFLAGS) -c ui.cpp -o ui.o
 
-# Fixed target block to look directly for your secure.c file!
 secure.o: secure.c
 	$(CC) $(CFLAGS) -c secure.c -o secure.o
+
+Storagefiles.o: Storagefiles.c
+	$(CC) $(CFLAGS) -c Storagefiles.c -o Storagefiles.o
+
+# Brand-new compiled line target for your raw touch register hardware driver!
+touch_pipeline.o: touch_pipeline.cpp
+	$(CXX) $(CXXFLAGS) -c touch_pipeline.cpp -o touch_pipeline.o
 
 # Maintenance routine to flush out cached object files and clear the console
 clean:
