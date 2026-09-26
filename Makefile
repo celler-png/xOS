@@ -1,34 +1,44 @@
-# xOS Master Build Script - Full Multi-Module ARM64 Compilation
+# =============================================================================
+# xOS MASTER BUILD SYSTEM AUTOMATION FACTORY - Day 3 Multi-Language Linking
+# =============================================================================
+
+# Define cross-compiler toolset targeting ARM64 mobile architecture
 CC = aarch64-linux-gnu-gcc
-AS = aarch64-linux-gnu-as
 CXX = aarch64-linux-gnu-g++
+AS = aarch64-linux-gnu-as
 LD = aarch64-linux-gnu-ld
 
-CFLAGS = -c -O2 -Wall -Wextra
-CXXFLAGS = -c -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti
+# Compiler optimizations and freestanding flags for bare-metal operating systems
+CFLAGS = -ffreestanding -O2 -Wall -Wextra
+CXXFLAGS = -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti
 
+# Object binary layout list - Perfectly matching your secure.o module!
+OBJ = boot.o kernel.o driver.o ui.o secure.o
+
+# Master production target
 all: xos_kernel.elf
 
-xos_kernel.elf: boot.o kernel.o driver.o ui.o appopen.o
-	$(LD) -T linker.ld boot.o kernel.o driver.o ui.o appopen.o -o xos_kernel.elf
+# 1. LINKING STEP: Stitches Assembly, C++, and pure C modules into the final green binary
+xos_kernel.elf: $(OBJ)
+	$(LD) -T linker.ld -o xos_kernel.elf $(OBJ)
 
-# Automatically use the correct ARM assembler tool!
+# 2. COMPILATION RULES: Translates your source text lines into raw machine bytes
 boot.o: boot.asm
 	$(AS) boot.asm -o boot.o
 
 kernel.o: kernel.cpp
-	$(CXX) $(CXXFLAGS) kernel.cpp -o kernel.o
+	$(CXX) $(CXXFLAGS) -c kernel.cpp -o kernel.o
 
 driver.o: driver.cpp
-	$(CXX) $(CXXFLAGS) driver.cpp -o driver.o
+	$(CXX) $(CXXFLAGS) -c driver.cpp -o driver.o
 
 ui.o: ui.cpp
-	$(CXX) $(CXXFLAGS) ui.cpp -o ui.o
+	$(CXX) $(CXXFLAGS) -c ui.cpp -o ui.o
 
-appopen.o: apps/appopen.cpp
-	$(CXX) $(CXXFLAGS) apps/appopen.cpp -o appopen.o
+# Fixed target block to look directly for your secure.c file!
+secure.o: secure.c
+	$(CC) $(CFLAGS) -c secure.c -o secure.o
 
+# Maintenance routine to flush out cached object files and clear the console
 clean:
-	rm -rf *.o *.elf
-
-
+	rm -f *.o xos_kernel.elf

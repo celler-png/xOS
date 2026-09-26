@@ -56,4 +56,26 @@ void adjust_peek_glass_transparency(int choice_level) {
     }
 }
 
+// =============================================================
+// xOS MOBILE INTERFACE PIPELINE - Render Home Gesture Line
+// =============================================================
+
+// Draw the sleek swipe-up indicator line right at the bottom row
+void draw_home_gesture_bar_line() {
+    char* video_memory = (char*)0xB8000;
+    
+    // Position the bar at row 24 (the very bottom edge of an 80x25 text grid)
+    int row_start_offset = 24 * 80 * 2; 
+    
+    // Centered horizontal line spanning from column 30 to column 50
+    for (int col = 30; col < 50; col++) {
+        int offset = row_start_offset + (col * 2);
+        
+        video_memory[offset] = '_';     // Draw a clean horizontal line character
+        video_memory[offset + 1] = 0x0F; // Bright white visibility color tag
+    }
+}
+
+
+
 
