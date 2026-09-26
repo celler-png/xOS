@@ -1,33 +1,33 @@
 # =============================================================================
-# xOS MASTER BUILD SYSTEM AUTOMATION FACTORY - Day 3 Multi-Language Linking
+# xOS MASTER BUILD SYSTEM AUTOMATION FACTORY - Day 3 Raw ROM Image Output
 # =============================================================================
 
-# Define cross-compiler toolset targeting ARM64 mobile architecture
 CC = aarch64-linux-gnu-gcc
 CXX = aarch64-linux-gnu-g++
 AS = aarch64-linux-gnu-as
 LD = aarch64-linux-gnu-ld
+OBJCOPY = aarch64-linux-gnu-objcopy
 
-# Compiler optimizations and freestanding flags for bare-metal operating systems
 CFLAGS = -ffreestanding -O2 -Wall -Wextra
 CXXFLAGS = -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti
 
-# Object binary layout list - Perfectly matching your complete hardware pipeline!
-OBJ = boot.o kernel.o driver.o ui.o secure.o Storagefiles.o touch_pipeline.o
+# Target list matching your clean Android 12 base kernel integration tracks
+OBJ = boot.o driver.o ui.o secure.o Storagefiles.o touch_pipeline.o xos_kernel_mod_bin.o
 
-# Master production target
-all: xos_kernel.elf
+# The absolute master target is now a pure raw ROM system image file!
+all: xos_firmware.img
 
-# 1. LINKING STEP: Stitches Assembly, C++, and pure C modules into the final green binary
-xos_kernel.elf: $(OBJ)
-	$(LD) -T linker.ld -o xos_kernel.elf $(OBJ)
+# 1. FIRMWARE EXPORT STEP: Strips all computer layout headers and outputs a raw binary ROM
+xos_firmware.img: xos_intermediate.elf
+	$(OBJCOPY) -O binary xos_intermediate.elf xos_firmware.img
 
-# 2. COMPILATION RULES: Translates your source text lines into raw machine bytes
+# 2. LINKING STEP: Combines your code elements inside an intermediate linker layer
+xos_intermediate.elf: $(OBJ)
+	$(LD) -T linker.ld -o xos_intermediate.elf $(OBJ)
+
+# 3. COMPILATION RULES: Translates your source text lines into raw machine bytes
 boot.o: boot.asm
 	$(AS) boot.asm -o boot.o
-
-kernel.o: kernel.cpp
-	$(CXX) $(CXXFLAGS) -c kernel.cpp -o kernel.o
 
 driver.o: driver.cpp
 	$(CXX) $(CXXFLAGS) -c driver.cpp -o driver.o
@@ -41,10 +41,11 @@ secure.o: secure.c
 Storagefiles.o: Storagefiles.c
 	$(CC) $(CFLAGS) -c Storagefiles.c -o Storagefiles.o
 
-# Brand-new compiled line target for your raw touch register hardware driver!
 touch_pipeline.o: touch_pipeline.cpp
 	$(CXX) $(CXXFLAGS) -c touch_pipeline.cpp -o touch_pipeline.o
 
-# Maintenance routine to flush out cached object files and clear the console
+xos_kernel_mod_bin.o: Image-XOS.bin
+	$(LD) -r -b binary -o xos_kernel_mod_bin.o Image-XOS.bin
+
 clean:
-	rm -f *.o xos_kernel.elf
+	rm -f *.o *.elf xos_firmware.img

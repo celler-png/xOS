@@ -1,17 +1,29 @@
-/* xOS Memory Linker Configuration Script - ARM64 Layout */
+/* =============================================================================
+   xOS HARDWARE MATRIX - Master Linker Script (Android 12 Base Alignment)
+   ============================================================================= */
+
 ENTRY(_start)
 
 SECTIONS
 {
-    /* ARM64 kernels commonly load at the 2 Megabyte mark (0x80000) */
+    /* Standard high-speed ARM64 mobile execution start address mapping position */
     . = 0x80000;
 
     .text : {
+        /* Force your upgraded Secure Bootloader logic to sit at the absolute top */
+        boot.o(.text)
+        
+        /* Auto-stamp the memory address tags your assembly checks depend on */
+        secure_c_module_start = .;
+        secure.o(.text)
+        
+        storage_files_module_start = .;
+        Storagefiles.o(.text)
+        
+        touch_pipeline_module_start = .;
+        touch_pipeline.o(.text)
+        
         *(.text)
-    }
-
-    .rodata : {
-        *(.rodata)
     }
 
     .data : {
@@ -19,12 +31,6 @@ SECTIONS
     }
 
     .bss : {
-        *(COMMON)
         *(.bss)
     }
-
-    /* Set aside safe space for our system stack */
-    . = ALIGN(8);
-    . = . + 0x4000; /* 16 Kilobytes of stack space */
-    _stack_top = .;
 }
